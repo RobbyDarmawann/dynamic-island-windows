@@ -105,11 +105,18 @@ function animateBounds(target, after) {
   const from = win.getBounds();
   if (from.width === target.width && from.height === target.height) { if (after) after(); return; }
   if (boundsAnim) { clearInterval(boundsAnim); boundsAnim = null; }
+  // v1.15: animasi pegas khas Dynamic Island — pas MEMBESAR pakai easeOutBack
+  // (melewati target sedikit lalu mantul menetap, terasa hidup seperti di
+  // iPhone); pas mengecil antar-mode tetap easeOutQuart yang tenang.
+  const growing = (target.width * target.height) >= (from.width * from.height);
   const start = Date.now();
-  const dur = 240; // v1.13: 300 -> 240ms, animasi selesai lebih cepat = lebih sedikit frame dilukis ulang
+  const dur = growing ? 330 : 220;
+  const easeOutQuart = (t) => 1 - Math.pow(1 - t, 4);
+  const easeOutBack = (t) => { const c1 = 1.35, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
+  const ease = growing ? easeOutBack : easeOutQuart;
   boundsAnim = setInterval(() => {
     const t = Math.min(1, (Date.now() - start) / dur);
-    const e = 1 - Math.pow(1 - t, 4);
+    const e = ease(t);
     try {
       win.setBounds({
         x: Math.round(from.x + (target.x - from.x) * e), y: target.y,
@@ -158,7 +165,7 @@ function setIslandMode(mode) {
 // dibuka, atau Ctrl+Shift+H / menu tray. Mode panel (musicapp) dan chat TIDAK
 // pernah disembunyikan otomatis — jadi pas daftar lagu lagi kebuka, island
 // diam di tempat; sembunyi lanjut lagi setelah panel ditutup.
-const HIDDEN_SIZE = { w: 168, h: 4 }; // v1.14: yang dikecilkan TINGGINYA (9 -> 4), lebar dikembalikan 168 sesuai arahan Leonardo
+const HIDDEN_SIZE = { w: 140, h: 2 }; // v1.15: garis rambut saja — sesudah menyusut, jendela dibuat transparan penuh (opacity 0), jadi yang terlihat di layar BENAR-BENAR tidak ada apa-apa, persis Dynamic Island asli pas tidak aktif
 let isHidden = false;
 let autoHideEnabled = true;
 let hideDelaySec = 5;
@@ -167,23 +174,48 @@ let peekUntil = 0;
 
 function noteActivity() { lastActivityAt = Date.now(); }
 
+// v1.15: sembunyi ala Dynamic Island asli — island menyusut cepat jadi garis
+// rambut (170ms), lalu jendelanya dibuat TRANSPARAN PENUH (opacity 0). Di layar
+// tidak tersisa apa pun, jadi keluhan "garisnya masih besar" mustahil terulang
+// berapa pun ukuran jendelanya. Muncul lagi (kursor ke tepi atas / lagu ganti /
+// pintasan): opacity kembali 1 dan island memegas membesar (easeOutBack).
+function animateHide() {
+  if (boundsAnim) { clearInterval(boundsAnim); boundsAnim = null; }
+  const from = win.getBounds();
+  const target = centeredBounds(HIDDEN_SIZE);
+  const finish = () => {
+    try {
+      win.setBounds(target);
+      win.setOpacity(0);
+      const b = win.getBounds();
+      console.log('[Island] SEMBUNYI total (opacity 0), bounds: ' + b.width + 'x' + b.height + 'px');
+    } catch { /* abaikan */ }
+  };
+  if (from.width === target.width && from.height === target.height) { finish(); return; }
+  const start = Date.now();
+  const dur = 170;
+  boundsAnim = setInterval(() => {
+    const t = Math.min(1, (Date.now() - start) / dur);
+    const e = t * t * t; // easeInCubic: menyusut makin cepat, lalu hilang
+    try {
+      win.setBounds({
+        x: Math.round(from.x + (target.x - from.x) * e), y: target.y,
+        width: Math.round(from.width + (target.width - from.width) * e),
+        height: Math.round(from.height + (target.height - from.height) * e),
+      });
+    } catch { /* abaikan */ }
+    if (t >= 1) { clearInterval(boundsAnim); boundsAnim = null; finish(); }
+  }, 16);
+}
+
 function applyHidden(hidden, reason) {
   if (!win || win.isDestroyed() || hidden === isHidden) return;
   isHidden = hidden;
   if (hidden) {
     if (ytView) ytView.setVisible(false);
-    // v1.14: BATALKAN dulu animasi resize apa pun yang sedang berjalan.
-    // Bug v1.13: sembunyi instan via setBounds kalah lomba lawan interval
-    // animasi mode yang belum selesai — interval itu terus menimpa ukuran
-    // sampai target BESARNYA, sementara status sudah "sembunyi" (isi transparan)
-    // -> jadilah gumpalan kosong besar di layar Leonardo.
-    if (boundsAnim) { clearInterval(boundsAnim); boundsAnim = null; }
-    try {
-      win.setBounds(centeredBounds(HIDDEN_SIZE));
-      const b = win.getBounds(); // bukti ukuran aktual, terbaca di terminal
-      console.log('[Island] SEMBUNYI aktual: ' + b.width + 'x' + b.height + 'px');
-    } catch { /* abaikan */ }
+    animateHide(); // membatalkan animasi apa pun yang sedang berjalan (satu slot interval yang sama)
   } else {
+    try { win.setOpacity(1); } catch { /* abaikan */ } // tampilkan DULU, baru memegas membesar
     animateBounds(centeredBounds(SIZES[currentMode]), () => layoutYTView());
     noteActivity();
   }
@@ -697,7 +729,7 @@ app.whenReady().then(() => {
   hideDelaySec = [3, 5, 8, 12].includes(loadSettings().hideDelaySec) ? loadSettings().hideDelaySec : 5;
   if (tray) tray.setContextMenu(buildTrayMenu());
   startCursorWatcher();
-  console.log('[Island] Dynamic Island v1.14 SIAP. Electron ' + process.versions.electron + ' / Chromium ' + process.versions.chrome + ' / UA stock: ' + win.webContents.getUserAgent());
+  console.log('[Island] Dynamic Island v1.15 SIAP. Electron ' + process.versions.electron + ' / Chromium ' + process.versions.chrome + ' / UA stock: ' + win.webContents.getUserAgent());
   if (app.isPackaged) { try { app.setLoginItemSettings({ openAtLogin: true }); } catch { /* abaikan */ } }
   globalShortcut.register('Control+Shift+A', () => { if (win) { win.show(); win.webContents.send('open-chat-screenshot'); } });
   globalShortcut.register('Control+Shift+M', () => { console.log('[Island] Ctrl+Shift+M diterima'); if (win) { win.show(); win.webContents.send('force-mode', 'musicapp'); } });

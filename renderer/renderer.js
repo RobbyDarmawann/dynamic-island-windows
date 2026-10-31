@@ -414,7 +414,7 @@ $('btn-test-gemini').onclick = async () => {
   } catch (e) { st.textContent = 'Tes gagal: ' + (e.message || e); }
 };
 
-addMsg('Bug garis sembunyi ketemu: animasi resize yang belum selesai menimpa ukuran kecilnya. Sekarang garisnya setipis 4px dan terkunci selama sembunyi.', 'ai');
+addMsg('Sekarang island sembunyi TOTAL sampai tidak terlihat sama sekali — sentuh tepi atas layar dan dia memegas muncul lagi, persis Dynamic Island asli.', 'ai');
 // === v1.4: volume laptop ===
 let volMuted = false;
 function paintVolume(st) {
@@ -449,4 +449,4 @@ $('vol-pct').onclick = async () => { try { paintVolume(await window.island.setMu
 islOn('onHiddenState', hidden => document.body.classList.toggle('is-hidden', !!hidden));
 refreshVolume();
 
-console.log('[Renderer] SEMUA handler tombol terpasang, renderer v1.14 siap penuh.');
+console.log('[Renderer] SEMUA handler tombol terpasang, renderer v1.15 siap penuh.');
