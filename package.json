@@ -42,7 +42,7 @@
     "start": "electron .",
     "dist:admin": "electron-builder --win -c.win.signAndEditExecutable=true"
   },
-  "version": "1.13.0",
+  "version": "1.14.0",
   "author": "Robby Darmawan",
   "license": "MIT"
 }

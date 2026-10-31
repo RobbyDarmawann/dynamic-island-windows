@@ -48,7 +48,7 @@ API key Gemini diisi sekali dari ikon gear di panel chat (dari [Google AI Studio
 npm run dist
 ```
 
-Hasilnya ada di folder `dist\`: installer **Dynamic Island Setup 1.13.0.exe** (autostart otomatis setelah terpasang) dan versi **portable** sekali klik.
+Hasilnya ada di folder `dist\`: installer **Dynamic Island Setup 1.14.0.exe** (autostart otomatis setelah terpasang) dan versi **portable** sekali klik.
 
 > **Catatan ikon:** taruh file PNG 512×512 bernama `icon.png` di folder `assets\` sebelum build (file binernya tidak disimpan di repo ini). Secara default build memakai `signAndEditExecutable: false` supaya selalu selesai **tanpa terminal admin** — konsekuensinya ikon file .exe/installer memakai bawaan Electron (ikon di dalam aplikasi & tray tetap ikon Dynamic Island). Mau ikon .exe-nya juga custom? Jalankan `npm run dist:admin` dari terminal **sebagai Administrator** (atau dengan Developer Mode Windows aktif).
 
