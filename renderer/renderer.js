@@ -414,7 +414,7 @@ $('btn-test-gemini').onclick = async () => {
   } catch (e) { st.textContent = 'Tes gagal: ' + (e.message || e); }
 };
 
-addMsg('Terakhir: baris lirik sekarang bisa ditekan buat loncat ke bagian itu. Versi ini siap dibungkus jadi .exe — jalankan npm run dist.', 'ai');
+addMsg('Garis sembunyi sekarang jauh lebih kecil dan gelap netral, dan animasinya diringankan — harusnya island terasa jauh lebih enteng.', 'ai');
 // === v1.4: volume laptop ===
 let volMuted = false;
 function paintVolume(st) {
@@ -449,4 +449,4 @@ $('vol-pct').onclick = async () => { try { paintVolume(await window.island.setMu
 islOn('onHiddenState', hidden => document.body.classList.toggle('is-hidden', !!hidden));
 refreshVolume();
 
-console.log('[Renderer] SEMUA handler tombol terpasang, renderer v1.12 siap penuh.');
+console.log('[Renderer] SEMUA handler tombol terpasang, renderer v1.13 siap penuh.');

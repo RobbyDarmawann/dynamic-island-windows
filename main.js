@@ -102,7 +102,7 @@ function animateBounds(target, after) {
   if (from.width === target.width && from.height === target.height) { if (after) after(); return; }
   if (boundsAnim) { clearInterval(boundsAnim); boundsAnim = null; }
   const start = Date.now();
-  const dur = 300;
+  const dur = 240; // v1.13: 300 -> 240ms, animasi selesai lebih cepat = lebih sedikit frame dilukis ulang
   boundsAnim = setInterval(() => {
     const t = Math.min(1, (Date.now() - start) / dur);
     const e = 1 - Math.pow(1 - t, 4);
@@ -154,7 +154,7 @@ function setIslandMode(mode) {
 // dibuka, atau Ctrl+Shift+H / menu tray. Mode panel (musicapp) dan chat TIDAK
 // pernah disembunyikan otomatis — jadi pas daftar lagu lagi kebuka, island
 // diam di tempat; sembunyi lanjut lagi setelah panel ditutup.
-const HIDDEN_SIZE = { w: 168, h: 9 };
+const HIDDEN_SIZE = { w: 120, h: 6 }; // v1.13: dikecilkan dari 168x9 — garis sembunyi harus nyaris tidak terlihat, ala Dynamic Island asli
 let isHidden = false;
 let autoHideEnabled = true;
 let hideDelaySec = 5;
@@ -168,7 +168,10 @@ function applyHidden(hidden, reason) {
   isHidden = hidden;
   if (hidden) {
     if (ytView) ytView.setVisible(false);
-    animateBounds(centeredBounds(HIDDEN_SIZE));
+    // v1.13: sembunyi SEKETIKA (tanpa animasi menyusut) — animasi 300ms bikin
+    // island terlihat menggantung di ukuran antara dan terasa berat; munculnya
+    // saja yang tetap dianimasikan.
+    try { win.setBounds(centeredBounds(HIDDEN_SIZE)); } catch { /* abaikan */ }
   } else {
     animateBounds(centeredBounds(SIZES[currentMode]), () => layoutYTView());
     noteActivity();
@@ -683,7 +686,7 @@ app.whenReady().then(() => {
   hideDelaySec = [3, 5, 8, 12].includes(loadSettings().hideDelaySec) ? loadSettings().hideDelaySec : 5;
   if (tray) tray.setContextMenu(buildTrayMenu());
   startCursorWatcher();
-  console.log('[Island] Dynamic Island v1.12 SIAP. Electron ' + process.versions.electron + ' / Chromium ' + process.versions.chrome + ' / UA stock: ' + win.webContents.getUserAgent());
+  console.log('[Island] Dynamic Island v1.13 SIAP. Electron ' + process.versions.electron + ' / Chromium ' + process.versions.chrome + ' / UA stock: ' + win.webContents.getUserAgent());
   if (app.isPackaged) { try { app.setLoginItemSettings({ openAtLogin: true }); } catch { /* abaikan */ } }
   globalShortcut.register('Control+Shift+A', () => { if (win) { win.show(); win.webContents.send('open-chat-screenshot'); } });
   globalShortcut.register('Control+Shift+M', () => { console.log('[Island] Ctrl+Shift+M diterima'); if (win) { win.show(); win.webContents.send('force-mode', 'musicapp'); } });
