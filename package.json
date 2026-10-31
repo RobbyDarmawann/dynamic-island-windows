@@ -25,7 +25,8 @@
       "target": [
         "nsis",
         "portable"
-      ]
+      ],
+      "signAndEditExecutable": false
     }
   },
   "description": "Dynamic Island untuk Windows 11 - YT Music nempel di atas layar + chat Gemini dengan screenshot",
@@ -38,9 +39,10 @@
   "scripts": {
     "dist": "electron-builder --win",
     "dist:portable": "electron-builder --win portable",
-    "start": "electron ."
+    "start": "electron .",
+    "dist:admin": "electron-builder --win -c.win.signAndEditExecutable=true"
   },
-  "version": "1.12.0",
+  "version": "1.12.1",
   "author": "Robby Darmawan",
   "license": "MIT"
 }

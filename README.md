@@ -2,10 +2,6 @@
   <img src="assets/banner.svg" alt="Dynamic Island for Windows" width="100%">
 </p>
 
-<p align="center">
-  <img src="assets/icon.png" alt="Ikon Dynamic Island" width="96">
-</p>
-
 <h1 align="center">Dynamic Island for Windows</h1>
 
 <p align="center">
@@ -52,7 +48,9 @@ API key Gemini diisi sekali dari ikon gear di panel chat (dari [Google AI Studio
 npm run dist
 ```
 
-Hasilnya ada di folder `dist\`: installer **Dynamic Island Setup 1.12.0.exe** (autostart otomatis setelah terpasang) dan versi **portable** sekali klik.
+Hasilnya ada di folder `dist\`: installer **Dynamic Island Setup 1.12.1.exe** (autostart otomatis setelah terpasang) dan versi **portable** sekali klik.
+
+> **Catatan ikon:** taruh file PNG 512×512 bernama `icon.png` di folder `assets\` sebelum build (file binernya tidak disimpan di repo ini). Secara default build memakai `signAndEditExecutable: false` supaya selalu selesai **tanpa terminal admin** — konsekuensinya ikon file .exe/installer memakai bawaan Electron (ikon di dalam aplikasi & tray tetap ikon Dynamic Island). Mau ikon .exe-nya juga custom? Jalankan `npm run dist:admin` dari terminal **sebagai Administrator** (atau dengan Developer Mode Windows aktif).
 
 > **Troubleshooting:** kalau build gagal di langkah mengekstrak `winCodeSign` dengan pesan *"Cannot create symbolic link: A required privilege is not held by the client"*, itu Windows kamu belum mengizinkan symlink untuk proses biasa. Solusinya salah satu: jalankan terminal **sebagai Administrator**, atau aktifkan **Developer Mode** (Settings → System → For developers). Setelah itu hapus folder `%LOCALAPPDATA%\electron-builder\Cache\winCodeSign` lalu ulangi `npm run dist`.
 
@@ -68,7 +66,7 @@ preload.js       Jembatan aman renderer <-> main (contextBridge)
 renderer/        UI island (bar, panel musik, lirik, chat)
 extension/       Ekstensi Chrome cadangan (remote YT Music dari Chrome)
 bridge/          Script Tampermonkey cadangan
-assets/          Ikon + banner
+assets/          Banner repo (ikon aplikasi: lihat catatan build)
 docs/            Catatan pengembangan versi demi versi
 ```
 
