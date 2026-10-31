@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Dynamic Island</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="mode-idle no-track">
+<div id="island">
+  <div id="bar">
+    <div id="idle-view">
+      <img id="mini-art" class="hidden" alt="">
+      <span id="mini-title" class="hidden"></span>
+      <span class="wave" id="wave-idle"><i></i><i></i><i></i><i></i><i></i></span>
+      <span id="dot"></span>
+      <span id="clock">00:00</span>
+    </div>
+    <div id="music-view" class="hidden">
+      <img id="art" alt="">
+      <div id="track-info">
+        <div id="track-title">Belum ada lagu</div>
+        <div id="track-artist">Tekan tombol merah buat mulai</div>
+        <div id="time-row"><span id="time-cur">0:00</span><div id="progress" title="Klik buat loncat ke posisi ini"><div id="progress-fill"></div></div><span id="time-dur">0:00</span></div>
+      </div>
+      <div id="controls">
+        <button id="btn-prev" class="ctl" title="Sebelumnya" aria-label="Sebelumnya">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h2.2v14H6zM19.5 5.6v12.8c0 .6-.7 1-1.2.7l-8.7-6.4a.9.9 0 0 1 0-1.4l8.7-6.4c.5-.3 1.2.1 1.2.7z"/></svg>
+        </button>
+        <button id="btn-play" class="ctl big" title="Putar / Jeda" aria-label="Putar atau jeda">
+          <svg id="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8.5 5.8v12.4c0 .6.7 1 1.2.7l9-6.2a.9.9 0 0 0 0-1.4l-9-6.2c-.5-.3-1.2.1-1.2.7z"/></svg>
+          <svg id="icon-pause" class="hidden" viewBox="0 0 24 24" fill="currentColor"><path d="M7.5 5h3v14h-3zM13.5 5h3v14h-3z"/></svg>
+        </button>
+        <button id="btn-next" class="ctl" title="Berikutnya" aria-label="Berikutnya">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.8 5h2.2v14h-2.2zM4.5 5.6v12.8c0 .6.7 1 1.2.7l8.7-6.4a.9.9 0 0 0 0-1.4L5.7 4.9c-.5-.3-1.2.1-1.2.7z"/></svg>
+        </button>
+        <button id="btn-lyrics" class="ctl" title="Lirik" aria-label="Tampilkan lirik">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M8.5 6.5h11M8.5 11h11M8.5 15.5h7"/><circle cx="4.6" cy="6.5" r="1.15" fill="currentColor" stroke="none"/><circle cx="4.6" cy="11" r="1.15" fill="currentColor" stroke="none"/><circle cx="4.6" cy="15.5" r="1.15" fill="currentColor" stroke="none"/></svg>
+        </button>
+      </div>
+    </div>
+    <div id="actions">
+      <button id="btn-yt" title="YouTube Music" aria-label="YouTube Music">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 7.3v9.4c0 .5.5.8 1 .6l7.6-4.7a.75.75 0 0 0 0-1.2L10 6.7c-.5-.2-1 .1-1 .6z"/></svg>
+      </button>
+      <button id="btn-ai" title="Chat Gemini" aria-label="Chat Gemini">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 4l1.6 4.9L17.5 10.5l-4.9 1.6L11 17l-1.6-4.9L4.5 10.5l4.9-1.6z"/><path d="M18.6 14.6l.8 2.3 2.3.8-2.3.8-.8 2.3-.8-2.3-2.3-.8 2.3-.8z"/></svg>
+      </button>
+      <button id="btn-quit" title="Keluar" aria-label="Keluar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7.5 7.5l9 9M16.5 7.5l-9 9"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div id="vol-row">
+    <button id="btn-vol-down" title="Volume turun" aria-label="Volume turun"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 9.5v5h3.4L12 19.6V4.4L6.4 9.5H3z"/><path d="M15.8 9.2a4 4 0 0 1 0 5.6l-1-1.1a2.6 2.6 0 0 0 0-3.4l1-1.1z"/></svg></button>
+    <input id="vol-slider" type="range" min="0" max="100" step="1" value="60" aria-label="Volume laptop">
+    <button id="btn-vol-up" title="Volume naik" aria-label="Volume naik"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 9.5v5h3.4L12 19.6V4.4L6.4 9.5H3z"/><path d="M15.8 9.2a4 4 0 0 1 0 5.6l-1-1.1a2.6 2.6 0 0 0 0-3.4l1-1.1z"/><path d="M18.2 6.8a7.4 7.4 0 0 1 0 10.4l-1-1.1a6 6 0 0 0 0-8.2l1-1.1z"/></svg></button>
+    <span id="vol-pct" title="Klik buat mute / unmute">60%</span>
+  </div>
+
+  <button id="btn-collapse" title="Perkecil island (Esc)" aria-label="Perkecil island"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9.5l7 7 7-7"/></svg></button>
+
+  <div id="musicapp-note" class="hidden">
+    <div class="note-inner">Memuat YouTube Music...<br><small>Belum masuk? Klik Sign in di panel — loginnya jalan di panel ini juga, persis pola aplikasi ytmdesktop. Selesai login, Premium kamu langsung kepakai di sini.</small></div>
+  </div>
+
+  <div id="lyrics" class="hidden">
+    <div id="lyrics-head">
+      <span id="lyrics-title">Lirik</span>
+      <button id="btn-close-lyrics" title="Sembunyikan lirik" aria-label="Sembunyikan lirik">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9.5l6 6 6-6"/></svg>
+      </button>
+    </div>
+    <div id="lyrics-body"><div class="lyrics-msg">Tekan tombol lirik pas ada lagu yang main.</div></div>
+  </div>
+
+  <div id="chat" class="hidden">
+    <div id="chat-head">
+      <span class="chat-title">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 4l1.6 4.9L17.5 10.5l-4.9 1.6L11 17l-1.6-4.9L4.5 10.5l4.9-1.6z"/></svg>
+        Gemini
+        <span id="chat-model"></span>
+      </span>
+      <span>
+        <button id="btn-settings" title="Pengaturan" aria-label="Pengaturan">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7.5h8M18.5 7.5H20M4 16.5h2M11.5 16.5H20"/><circle cx="15" cy="7.5" r="2.1"/><circle cx="8" cy="16.5" r="2.1"/></svg>
+        </button>
+        <button id="btn-close-chat" title="Tutup chat" aria-label="Tutup chat">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9.5l6 6 6-6"/></svg>
+        </button>
+      </span>
+    </div>
+    <div id="settings" class="hidden">
+      <label>API key Gemini <small>(disimpan cuma di PC ini)</small></label>
+      <input id="inp-key" type="password" placeholder="Tempel key kamu di sini, jangan di chat">
+      <label>Model</label>
+      <select id="inp-model">
+        <option value="gemini-4-argon">gemini-4-argon (flagship, API berbayar)</option>
+        <option value="gemini-2.5-pro">gemini-2.5-pro (paling pintar)</option>
+        <option value="gemini-3-pro-preview">gemini-3-pro-preview (terbaru, preview)</option>
+        <option value="gemini-2.5-flash">gemini-2.5-flash (seimbang)</option>
+        <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite (lebih cepat)</option>
+        <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+      </select>
+      <button id="btn-save-settings">Simpan</button>
+      <button id="btn-test-gemini">Tes koneksi</button>
+      <span id="settings-status"></span>
+    </div>
+    <div id="messages"></div>
+    <div id="attach" class="hidden">
+      <img id="attach-img" alt="screenshot">
+      <span>Screenshot terlampir</span>
+      <button id="btn-detach" aria-label="Lepas screenshot">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7.5 7.5l9 9M16.5 7.5l-9 9"/></svg>
+      </button>
+    </div>
+    <div id="input-row">
+      <button id="btn-shot" title="Ambil screenshot" aria-label="Ambil screenshot">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h1.2l1.5-2.2A1 1 0 0 1 9 4.3h6a1 1 0 0 1 .8.5L17.3 7h1.2A1.5 1.5 0 0 1 20 8.5V18a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18z"/><circle cx="12" cy="13" r="3.4"/></svg>
+      </button>
+      <input id="inp-msg" type="text" placeholder="Tanya apa aja, atau screenshot dulu...">
+      <button id="btn-send" title="Kirim" aria-label="Kirim">
+        <svg id="icon-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 18.5v-12M6.8 11.3L12 6.1l5.2 5.2"/></svg>
+        <svg id="icon-stop" class="hidden" viewBox="0 0 24 24" fill="currentColor"><rect x="6.5" y="6.5" width="11" height="11" rx="2.5"/></svg>
+      </button>
+    </div>
+    <div id="hint">Ctrl+Shift+A — screenshot + chat &nbsp;·&nbsp; Ctrl+Shift+M — YouTube Music</div>
+  </div>
+</div>
+<script src="renderer.js"></script>
+</body>
+</html>

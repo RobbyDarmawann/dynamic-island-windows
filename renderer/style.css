@@ -1,0 +1,236 @@
+/* Dynamic Island v1.0 — bahasa desain macOS / iOS:
+   hitam pekat nempel ke tepi atas seperti notch, lengkungan kontinu cuma di bawah,
+   ikon SVG bergaya SF Symbols (garis tipis, geometris), tanpa emoji,
+   material gelap dengan highlight halus dan bayangan berlapis. */
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: "Segoe UI Variable Text", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+html, body { background: transparent; overflow: hidden; height: 100%; }
+.hidden { display: none !important; }
+button { font-family: inherit; }
+button svg { display: block; }
+
+#island {
+  width: 100%; height: 100%;
+  position: relative;
+  /* v1.5 GLASS: bukan hitam pekat lagi — kaca berwarna. --glass diisi dari warna
+     dominan cover lagu yang lagi muter (di-set renderer), default slate netral. */
+  /* v1.8: NEMPEL ATAS, lengkung cuma di sudut bawah (0 0 28px 28px), dan
+     clip-path MEMOTONG seluruh lukisan elemen ke bentuk itu juga — kombinasi
+     yang terbukti menghilangkan sisa kotak di lengkungan (konfirmasi user
+     sesudah v1.7: kotaknya hilang). backdrop-filter tetap dibuang (stutter). */
+  background:
+    radial-gradient(120% 90px at 50% -30px, rgba(255,255,255,0.07), rgba(255,255,255,0) 60%),
+    linear-gradient(180deg, rgba(var(--glass, 52, 54, 66), 0.95) 0%, rgba(var(--glass, 52, 54, 66), 0.93) 55%, rgba(var(--glass, 52, 54, 66), 0.95) 100%);
+  clip-path: inset(0 round 0 0 28px 28px);
+  transition: background 0.9s ease;
+  /* v1.11: tepi island pakai BORDER beneran (bukan ring inset shadow) —
+     di layar berskala Windows, inset shadow bisa ninggalin jahitan garis
+     putih di tepi; border tergambar tegas ngikutin lengkungan. */
+  border: 1px solid rgba(255,255,255,0.09);
+  border-top: none;
+  border-radius: 0 0 28px 28px;
+  box-shadow: inset 0 -1px 0 rgba(255,255,255,0.04);
+  color: #f5f5f7;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  transform-origin: top center;
+  transition: box-shadow .6s ease;
+}
+body.mode-idle #island { border-radius: 0 0 21px 21px; }
+body.mode-musicapp #island { border-radius: 0 0 24px 24px; }
+body.playing #island { box-shadow: inset 0 -1px 0 rgba(255,255,255,0.04), inset 0 0 42px rgba(252,60,68,0.13); }
+
+#bar { min-height: 44px; padding: 5px 14px 7px; display: flex; align-items: center; gap: 10px; }
+body.mode-music #bar, body.mode-musicapp #bar { min-height: 94px; padding: 10px 16px; }
+body.mode-chat #bar { min-height: 44px; }
+
+/* v1.6: layout mode kecil dirapikan — info lagu di kiri (cover, judul, equalizer),
+   status + jam di kanan sebelum tombol aksi. Tanpa padding penyeimbang lama,
+   tanpa label versi. */
+#idle-view { display: flex; align-items: center; gap: 9px; flex: 1; min-width: 0; padding-left: 2px; }
+#mini-art { width: 22px; height: 22px; border-radius: 7px; object-fit: cover; box-shadow: 0 2px 8px rgba(0,0,0,.5); flex: none; }
+#dot { width: 7px; height: 7px; border-radius: 50%; background: #8e8e96; flex: none; margin-left: auto; transition: background .4s, box-shadow .4s; }
+body.playing #dot { background: #fc3c44; box-shadow: 0 0 9px rgba(252,60,68,.95); }
+#clock { font-size: 13.5px; font-weight: 600; letter-spacing: .3px; font-variant-numeric: tabular-nums; flex: none; }
+#mini-title { font-size: 12px; font-weight: 500; color: #e8e8ee; max-width: 118px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.wave { display: none; align-items: flex-end; gap: 2.5px; height: 13px; flex: none; }
+.wave.on { display: inline-flex; }
+.wave i { width: 3px; background: #fc3c44; border-radius: 2px; animation: bounce .62s ease-in-out infinite alternate; }
+.wave i:nth-child(2) { animation-delay: .11s; } .wave i:nth-child(3) { animation-delay: .22s; }
+.wave i:nth-child(4) { animation-delay: .33s; } .wave i:nth-child(5) { animation-delay: .44s; }
+@keyframes bounce { from { height: 3px; } to { height: 13px; } }
+
+#music-view { display: flex; align-items: center; gap: 13px; flex: 1; min-width: 0; }
+#art { width: 62px; height: 62px; border-radius: 14px; object-fit: cover; background: #1c1c1e; border: 1px solid rgba(255,255,255,.07); box-shadow: 0 8px 22px rgba(0,0,0,.55); flex: none; }
+body.playing #art { animation: artPulse 2.8s ease-in-out infinite; }
+@keyframes artPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+#track-info { flex: 1; min-width: 0; cursor: pointer; }
+#track-title { font-size: 14.5px; font-weight: 600; letter-spacing: -.2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#track-artist { font-size: 12px; color: #8e8e93; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 2.5px 0 8px; }
+#time-row { display: flex; align-items: center; gap: 7px; margin-top: 3px; }
+#time-row span { font-size: 10px; font-weight: 500; color: rgba(255,255,255,.75); font-variant-numeric: tabular-nums; min-width: 26px; }
+#time-dur { text-align: right; }
+#progress { flex: 1; height: 3.5px; background: rgba(255,255,255,.18); border-radius: 4px; overflow: hidden; cursor: pointer; }
+#progress-fill { height: 100%; width: 0%; background: #f5f5f7; border-radius: 4px; transition: width .5s linear; box-shadow: 0 0 6px rgba(255,255,255,.35); }
+
+#controls { display: flex; align-items: center; gap: 4px; }
+#controls .ctl { background: none; border: none; color: #f5f5f7; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s ease, transform .1s ease; }
+#controls .ctl svg { width: 21px; height: 21px; }
+#controls .ctl.big svg { width: 25px; height: 25px; }
+#controls .ctl:hover { background: rgba(255,255,255,.1); }
+#controls .ctl:active { transform: scale(.88); }
+
+#actions { display: flex; gap: 9px; flex: none; margin-left: auto; }
+#actions button { width: 28px; height: 28px; border-radius: 50%; border: none; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform .14s ease, filter .15s ease, box-shadow .2s ease; }
+#actions button svg { width: 15px; height: 15px; }
+#actions button:hover { transform: scale(1.14); filter: brightness(1.18); }
+#btn-yt { background: linear-gradient(145deg, #ff5147, #e8111c); box-shadow: 0 4px 12px rgba(232,17,28,.38), inset 0 1px 0 rgba(255,255,255,.25); }
+#btn-ai { background: linear-gradient(145deg, #8a6cff, #0aa8e8); box-shadow: 0 4px 12px rgba(122,92,255,.38), inset 0 1px 0 rgba(255,255,255,.25); }
+#btn-quit { background: rgba(255,255,255,.13); box-shadow: inset 0 1px 0 rgba(255,255,255,.08); }
+#btn-yt.loading { animation: loadingPulse .7s ease-in-out infinite alternate; }
+@keyframes loadingPulse { from { filter: brightness(.8); transform: scale(.93); } to { filter: brightness(1.3); transform: scale(1.07); } }
+body.mode-music #btn-quit, body.mode-musicapp #btn-quit, body.mode-chat #btn-quit { display: none; }
+
+button.pressed { animation: pressPop .32s cubic-bezier(.32,.72,.35,1); }
+@keyframes pressPop { 0% { transform: scale(1); } 35% { transform: scale(.84); } 70% { transform: scale(1.09); } 100% { transform: scale(1); } }
+
+#musicapp-note { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.note-inner { text-align: center; color: #8e8e93; font-size: 13px; line-height: 1.65; }
+.note-inner small { color: #5c5c60; }
+
+#chat { border-top: 1px solid rgba(255,255,255,.07); display: flex; flex-direction: column; flex: 1; min-height: 0; }
+#chat-head { display: flex; justify-content: space-between; align-items: center; padding: 9px 14px; font-weight: 600; font-size: 13px; }
+.chat-title { display: inline-flex; align-items: center; gap: 6px; }
+.chat-title svg { width: 15px; height: 15px; color: #b7a6ff; }
+#chat-head button { background: none; border: none; color: #8e8e93; cursor: pointer; width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-left: 4px; transition: background .15s, color .15s; }
+#chat-head button:hover { background: rgba(255,255,255,.09); color: #f5f5f7; }
+#chat-head button svg { width: 16px; height: 16px; }
+#settings { padding: 4px 14px 12px; display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: #8e8e93; }
+#settings input, #settings select { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12); color: #fff; border-radius: 10px; padding: 7px 9px; font-size: 12px; }
+#settings select option { color: #000; }
+#btn-save-settings { background: #f5f5f7; color: #000; border: none; border-radius: 10px; padding: 7px; font-weight: 600; cursor: pointer; }
+#messages { flex: 1; overflow-y: auto; padding: 6px 12px; display: flex; flex-direction: column; gap: 8px; }
+#messages::-webkit-scrollbar { width: 0; }
+.msg { max-width: 88%; padding: 8px 11px; border-radius: 17px; font-size: 13px; line-height: 1.45; white-space: pre-wrap; word-break: break-word; animation: msgIn .28s cubic-bezier(.32,.72,.35,1) both; }
+@keyframes msgIn { from { opacity: 0; transform: translateY(7px) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.msg.user { align-self: flex-end; background: #0a84ff; color: #fff; border-bottom-right-radius: 5px; }
+.msg.ai { align-self: flex-start; background: rgba(255,255,255,.09); border-bottom-left-radius: 5px; }
+.msg.ai.typing { color: #8e8e93; font-style: italic; }
+#attach { display: flex; align-items: center; gap: 8px; margin: 4px 12px; font-size: 12px; color: #8e8e93; }
+#attach-img { width: 52px; height: 32px; object-fit: cover; border-radius: 7px; border: 1px solid rgba(255,255,255,.2); }
+#btn-detach { background: none; border: none; color: #f5f5f7; cursor: pointer; width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; }
+#btn-detach svg { width: 12px; height: 12px; }
+#input-row { display: flex; gap: 7px; padding: 10px 12px 4px; align-items: center; }
+#inp-msg { flex: 1; background: rgba(255,255,255,.09); border: 1px solid rgba(255,255,255,.1); color: #fff; border-radius: 19px; padding: 9px 14px; font-size: 13px; outline: none; }
+#inp-msg:focus { border-color: rgba(255,255,255,.25); }
+#btn-shot, #btn-send { width: 36px; height: 36px; border-radius: 50%; border: none; cursor: pointer; flex: none; display: flex; align-items: center; justify-content: center; transition: transform .12s ease, filter .15s ease; }
+#btn-shot { background: rgba(255,255,255,.12); color: #f5f5f7; }
+#btn-shot svg { width: 18px; height: 18px; }
+#btn-send { background: #f5f5f7; color: #000; }
+#btn-send svg { width: 17px; height: 17px; }
+#btn-shot:hover, #btn-send:hover { transform: scale(1.08); filter: brightness(1.1); }
+#hint { text-align: center; font-size: 10px; color: #48484a; padding: 5px 0 9px; letter-spacing: .2px; }
+
+/* ===== v1.4: baris volume laptop (cuma tampil di mode musik) ===== */
+#vol-row { display: none; align-items: center; gap: 9px; padding: 1px 18px 8px; }
+body.mode-music #vol-row { display: flex; }
+#vol-row button { width: 26px; height: 22px; border: none; background: none; color: #c9c9d1; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: color .15s ease, transform .12s ease; }
+#vol-row button:hover { color: #fff; }
+#vol-row button:active { transform: scale(.88); }
+#vol-row button svg { width: 17px; height: 17px; }
+#vol-slider { -webkit-appearance: none; appearance: none; flex: 1; height: 4px; border-radius: 2px; background: linear-gradient(to right, #fff var(--fill, 60%), rgba(255,255,255,.22) var(--fill, 60%)); outline: none; cursor: pointer; }
+#vol-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 13px; height: 13px; border-radius: 50%; background: #fff; box-shadow: 0 1px 5px rgba(0,0,0,.55); }
+#vol-slider:disabled { opacity: .35; cursor: default; }
+#vol-pct { font-size: 11px; font-weight: 600; color: #d7d7de; min-width: 36px; text-align: right; cursor: pointer; font-variant-numeric: tabular-nums; user-select: none; }
+#vol-pct.muted { color: #fc3c44; text-decoration: line-through; }
+
+/* ===== v1.4: keadaan sembunyi (auto-hide) — isi memudar, sisa pill hitam ===== */
+body.is-hidden #bar, body.is-hidden #vol-row, body.is-hidden #musicapp-note, body.is-hidden #panel { opacity: 0; }
+#bar, #vol-row { transition: opacity .25s ease; }
+body.is-hidden #island { border-radius: 0 0 999px 999px; clip-path: inset(0 round 0 0 999px 999px); }
+
+/* ===== v1.5: tombol perkecil di panel/chat + hemat CPU animasi ===== */
+#btn-collapse { display: none; position: absolute; left: 50%; bottom: 5px; transform: translateX(-50%); width: 38px; height: 20px; border-radius: 10px; border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.08); color: #fff; cursor: pointer; align-items: center; justify-content: center; z-index: 40; transition: background .15s ease, transform .15s ease; }
+#btn-collapse:hover { background: rgba(255,255,255,.18); }
+#btn-collapse:active { transform: translateX(-50%) scale(.92); }
+#btn-collapse svg { width: 15px; height: 15px; }
+body.mode-musicapp #btn-collapse, body.mode-chat #btn-collapse { display: flex; }
+body:not(.playing) .wave i, body.is-hidden .wave i { animation-play-state: paused; }
+
+/* v1.6: belum ada lagu -> grup jam+status di tengah, rapi simetris */
+body.no-track #idle-view { justify-content: center; }
+body.no-track #dot { margin-left: 0; }
+
+/* === v1.8: poles UI chat — kaca lembut, bubble gradien, input pill === */
+#chat { background: linear-gradient(180deg, rgba(var(--glass, 52, 54, 66), 0.14) 0%, rgba(10, 10, 14, 0.18) 130px, rgba(10, 10, 14, 0.05) 100%); }
+#chat-head { border-bottom: 1px solid rgba(255,255,255,.06); padding: 11px 14px 9px; }
+#chat-model { font-size: 10.5px; font-weight: 500; color: #a7a7b3; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.09); padding: 2px 8px; border-radius: 999px; margin-left: 2px; letter-spacing: .01em; }
+#chat-model:empty { display: none; }
+#messages { padding: 10px 12px 6px; gap: 9px; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.22) transparent; }
+#messages::-webkit-scrollbar { width: 5px; }
+#messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,.18); border-radius: 99px; }
+.msg { padding: 9px 12px; font-size: 13.5px; box-shadow: 0 2px 10px rgba(0,0,0,.16); }
+.msg.user { background: linear-gradient(135deg, #2f7bff 0%, #0a84ff 55%, #7d5cff 130%); border: 1px solid rgba(255,255,255,.14); }
+.msg.ai { background: rgba(255,255,255,.075); border: 1px solid rgba(255,255,255,.09); }
+.msg.ai.typing { border-style: dashed; box-shadow: none; }
+#input-row { padding: 8px 12px 12px; gap: 8px; }
+#inp-msg { background: rgba(255,255,255,.1); border-radius: 999px; padding: 10px 16px; transition: border-color .18s ease, background .18s ease; }
+#inp-msg:focus { border-color: rgba(183,166,255,.55); background: rgba(255,255,255,.13); }
+#btn-send { background: linear-gradient(135deg, #f5f5f7, #d9d9e3); box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+#attach { margin: 2px 12px 0; border-radius: 12px; }
+#settings { background: rgba(255,255,255,.045); border: 1px solid rgba(255,255,255,.07); border-radius: 14px; margin: 8px 12px 2px; padding: 10px 12px 12px; }
+#btn-test-gemini { background: rgba(255,255,255,.1); color: #f5f5f7; border: 1px solid rgba(255,255,255,.14); border-radius: 10px; padding: 7px 10px; font-weight: 600; cursor: pointer; }
+#btn-test-gemini:hover { background: rgba(255,255,255,.16); }
+
+/* === v1.9: keadaan kosong yang bersih pas program baru jalan === */
+/* v1.10 (permintaan Leonardo): kotak cover JANGAN dihilangkan — tampilkan
+   sebagai placeholder lengkung yang elegan: kaca gradien lembut + ikon nada
+   SVG pudar di tengah + ring tipis samar. Yang dibuang cuma garis putih
+   terang dan bayangan kerasnya. */
+#art.no-art, body.no-track #art {
+  background-color: rgba(255,255,255,.05);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.5)' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 18V5l12-2v13'/%3E%3Ccircle cx='6' cy='18' r='3'/%3E%3Ccircle cx='18' cy='16' r='3'/%3E%3C/svg%3E"), linear-gradient(145deg, rgba(255,255,255,.13), rgba(255,255,255,.04));
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 27px, cover;
+  border-color: rgba(255,255,255,.09);
+  box-shadow: 0 6px 16px rgba(0,0,0,.32);
+}
+body.no-track #progress-wrap { opacity: .35; }
+#track-artist { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* === v1.11: panel lirik + status proses chat ala Gemini asli === */
+body.mode-lyrics #bar { min-height: 94px; padding: 10px 16px; }
+body.mode-lyrics #btn-collapse { display: flex; }
+body.mode-lyrics #btn-lyrics { color: #fc3c44; }
+#lyrics { border-top: 1px solid rgba(255,255,255,.07); display: flex; flex-direction: column; flex: 1; min-height: 0; animation: lyricsIn .38s cubic-bezier(.32,.72,.35,1) both; }
+@keyframes lyricsIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+#lyrics-head { display: flex; justify-content: space-between; align-items: center; padding: 9px 16px 5px; }
+#lyrics-title { font-size: 12px; font-weight: 600; color: #c9c9d1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#btn-close-lyrics { background: none; border: none; color: #8e8e93; cursor: pointer; width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; transition: background .15s, color .15s; flex: none; }
+#btn-close-lyrics:hover { background: rgba(255,255,255,.09); color: #f5f5f7; }
+#btn-close-lyrics svg { width: 16px; height: 16px; }
+#lyrics-body { flex: 1; overflow-y: auto; padding: 4px 22px 16px; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.22) transparent; text-align: center; }
+#lyrics-body::-webkit-scrollbar { width: 5px; }
+#lyrics-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,.18); border-radius: 99px; }
+.lyrics-msg { color: #8e8e93; font-size: 13px; padding: 26px 8px; }
+.lrc-line { font-size: 15.5px; line-height: 1.5; padding: 3.5px 6px; color: rgba(245,245,247,.42); transition: color .35s ease, transform .35s ease, opacity .35s ease; }
+.lrc-line.on { color: #fff; font-weight: 700; transform: scale(1.045); text-shadow: 0 2px 14px rgba(0,0,0,.35); }
+.lyrics-plain { font-size: 14px; line-height: 1.65; white-space: pre-wrap; color: rgba(245,245,247,.85); text-align: center; }
+/* status mikir: tiga titik memantul + teks status model */
+.msg .dots { display: inline-flex; gap: 4px; margin-right: 8px; vertical-align: middle; }
+.msg .dots i { width: 6px; height: 6px; border-radius: 50%; background: #b7a6ff; display: inline-block; animation: dotBounce 1.15s ease-in-out infinite; }
+.msg .dots i:nth-child(2) { animation-delay: .15s; }
+.msg .dots i:nth-child(3) { animation-delay: .3s; }
+@keyframes dotBounce { 0%, 60%, 100% { transform: translateY(0); opacity: .45; } 30% { transform: translateY(-4.5px); opacity: 1; } }
+.msg.cancelled { color: #8e8e93; font-style: italic; }
+#btn-send.stop { background: linear-gradient(135deg, #3a3a42, #232329); color: #fff; border: 1px solid rgba(255,255,255,.2); animation: stopPulse 1.3s ease-in-out infinite; }
+@keyframes stopPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(183,166,255,.45); } 50% { box-shadow: 0 0 0 6px rgba(183,166,255,0); } }
+#inp-msg:disabled { opacity: .55; }
+#btn-shot:disabled { opacity: .4; pointer-events: none; }
+
+/* === v1.12: baris lirik bisa ditekan buat loncat === */
+.lrc-line.clickable { cursor: pointer; border-radius: 10px; }
+.lrc-line.clickable:hover { background: rgba(255,255,255,.07); color: rgba(245,245,247,.85); }
+.lrc-line.clickable:active { transform: scale(.985); background: rgba(255,255,255,.12); }
+.lrc-line.on.clickable:hover { color: #fff; }

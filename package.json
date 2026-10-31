@@ -1,0 +1,46 @@
+{
+  "build": {
+    "appId": "com.leonardo.dynamicisland",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/**",
+      "bridge/**",
+      "extension/**",
+      "assets/**",
+      "package.json"
+    ],
+    "nsis": {
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "oneClick": false,
+      "shortcutName": "Dynamic Island"
+    },
+    "productName": "Dynamic Island",
+    "win": {
+      "icon": "assets/icon.png",
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    }
+  },
+  "description": "Dynamic Island untuk Windows 11 - YT Music nempel di atas layar + chat Gemini dengan screenshot",
+  "devDependencies": {
+    "electron": "^45.0.0",
+    "electron-builder": "^25.1.8"
+  },
+  "main": "main.js",
+  "name": "dynamic-island-windows",
+  "scripts": {
+    "dist": "electron-builder --win",
+    "dist:portable": "electron-builder --win portable",
+    "start": "electron ."
+  },
+  "version": "1.12.0",
+  "author": "Robby Darmawan",
+  "license": "MIT"
+}
